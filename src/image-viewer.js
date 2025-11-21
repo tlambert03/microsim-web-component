@@ -1,13 +1,13 @@
-import { LitElement, html, css } from 'lit';
-import '@awesome.me/webawesome/dist/styles/themes/default.css';
-import '@awesome.me/webawesome/dist/components/slider/slider.js';
+import { css, html, LitElement } from "lit";
+import "@awesome.me/webawesome/dist/styles/themes/default.css";
+import "@awesome.me/webawesome/dist/components/slider/slider.js";
 
 class ImageViewer extends LitElement {
-  static properties = {
-    imageIndex: { type: Number }
-  };
+	static properties = {
+		imageIndex: { type: Number },
+	};
 
-  static styles = css`
+	static styles = css`
     :host {
       display: block;
       height: 100vh;
@@ -45,23 +45,19 @@ class ImageViewer extends LitElement {
     }
   `;
 
-  constructor() {
-    super();
-    this.imageIndex = 0;
-  }
+	constructor() {
+		super();
+		this.imageIndex = 0;
+	}
 
-  images = [
-    '/images/image0.png',
-    '/images/image1.png',
-    '/images/image2.png'
-  ];
+	images = ["/images/image0.png", "/images/image1.png", "/images/image2.png"];
 
-  handleSliderChange(e) {
-    this.imageIndex = parseInt(e.target.value);
-  }
+	handleSliderChange(e) {
+		this.imageIndex = parseInt(e.target.value, 10);
+	}
 
-  render() {
-    return html`
+	render() {
+		return html`
       <div class="container">
         <div class="controls">
           <wa-slider
@@ -85,7 +81,7 @@ class ImageViewer extends LitElement {
         </div>
       </div>
     `;
-  }
+	}
 }
 
-customElements.define('image-viewer', ImageViewer);
+customElements.define("image-viewer", ImageViewer);
