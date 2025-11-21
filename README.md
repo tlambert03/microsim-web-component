@@ -4,23 +4,21 @@ A minimal Lit.js web component example using WebAwesome UI components.
 
 ## Setup
 
+If you don't have Node.js installed, download it from [nodejs.org](https://nodejs.org/),
+or run `brew install node` if you use Homebrew on macOS.=
+
+Then, in this project directory, run:
+
 ```bash
 npm install
 npm run dev
 ```
 
+This will open `http://localhost:5173/` in your browser.
+
 ## Structure
 
-- `index.html` - Entry point
+- `index.html` - Entry point for testing the component
 - `src/image-viewer.js` - Lit web component with slider and image display
-- `src/style.css` - Minimal global styles
 - `src/public/images/` - Sample images (image0.png, image1.png, image2.png)
 - `vite.config.js` - Dev server configuration
-
-## Key Patterns
-
-**Lit Component**: Uses `LitElement` base class with decorators for reactive properties
-**WebAwesome**: Imports pre-built slider component from `@awesome.me/webawesome`
-**Vite**: Zero-config dev server with hot module replacement
-
-Add your own PNG images to `src/public/images/` and update the `images` array in `src/image-viewer.js`.
