@@ -15,8 +15,13 @@
 </head>
 
 <body>
-  <image-viewer></image-viewer>
-  <script type="module" src="/src/image-viewer.js"></script>
+  <!-- This is the "standard" web component syntax
+       but it's not supported (easily) by moodle...
+       so we use `data-component` instead -->
+  <!-- <microsim-viewer img-url="./images"></microsim-viewer> -->
+  <div data-component="microsim-viewer" data-img-url="./images"></div>
+
+  <script type="module" src="/src/microsim-viewer.js"></script>
 </body>
 
 </html>

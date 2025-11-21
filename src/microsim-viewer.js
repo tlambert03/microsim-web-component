@@ -2,10 +2,11 @@ import { css, html, LitElement } from "lit";
 import "@awesome.me/webawesome/dist/styles/themes/default.css";
 import "@awesome.me/webawesome/dist/components/slider/slider.js";
 
+// Automatically detect the base URL for images based on where this script was loaded from
+const scriptUrl = new URL(import.meta.url);
+const defaultImgUrl = new URL('./images', scriptUrl).href;
 
-
-
-class ImageViewer extends LitElement {
+class MicrosimViewer extends LitElement {
 	static properties = {
 		imageIndex: { type: Number },
 		imgUrl: { type: String },
@@ -52,7 +53,7 @@ class ImageViewer extends LitElement {
 		super();
 		this.imageIndex = 0;
 		this.imageCount = 3;
-		this.imgUrl = "./images";
+		this.imgUrl = defaultImgUrl;
 	}
 
 	getImageUrl(index) {
@@ -98,4 +99,27 @@ class ImageViewer extends LitElement {
 	}
 }
 
-customElements.define("image-viewer", ImageViewer);
+customElements.define("microsim-viewer", MicrosimViewer);
+
+// For cases like moodle where custom elements are sanitized or not allowed,
+// we also look for divs with data-component="microsim-viewer"
+// and replace them with the web component.
+function initViewers() {
+	document
+		.querySelectorAll('[data-component="microsim-viewer"]')
+		.forEach((el) => {
+			const viewer = document.createElement("microsim-viewer");
+
+      // grab all data- attributes and pass them to the viewer
+			Object.keys(el.dataset).forEach((key) => {
+				viewer[key] = el.dataset[key];
+			});
+
+			el.replaceWith(viewer);
+		});
+}
+if (document.readyState === "loading") {
+	document.addEventListener("DOMContentLoaded", initViewers);
+} else {
+	initViewers();
+}

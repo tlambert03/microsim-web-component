@@ -31,32 +31,32 @@ Release](https://img.shields.io/badge/Create%20Release-blue?style=for-the-badge)
 Click **Run workflow**, enter a version tag (e.g., `v1.0.0`), and the built
 files will be attached to a new GitHub release.
 
-## Using in Moodle
+## Usage
 
-### Step 1: Host the Built Files
+### Basic Usage
 
-After building, you need to host the component files somewhere accessible:
-
-1. Upload the contents of the `dist/` folder to a web server or CDN
-2. Note the base URL where the files are hosted (e.g.,
-   `https://example.com/microsim/`)
-
-### Step 2: Add to Moodle Page
-
-In your Moodle page editor, switch to HTML mode and add (replace the v1.0.0 with
-the desired version)
+The component automatically detects where it's loaded from and looks for images in
+an `images/` folder relative to the script. Simply add the component and script
+tag (replace `vX.Y.Z` with the desired version):
 
 ```html
-<script type="module"
-  src="https://cdn.jsdelivr.net/gh/tlambert03/microsim-web-component@v1.0.0/image-viewer.js">
-</script>
-<image-viewer img-url="https://cdn.jsdelivr.net/gh/tlambert03/microsim-web-component@v1.0.0/images"></image-viewer>
+<microsim-viewer></microsim-viewer>
+<!-- alternatively... for pages that purify HTML and remove custom elements: -->
+<div data-component="microsim-viewer"></div>
 
-<!-- Load the web component -->
-<script type="module" src="https://example.com/microsim/image-viewer.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/tlambert03/microsim-web-component@vX.Y.Z/microsim-viewer.js"></script>
+```
 
-<!-- Use the component -->
-<image-viewer img-url="https://cdn.jsdelivr.net/gh/user/repo@main/images"></image-viewer>
+### Custom Image Location (Optional)
+
+If you need to load images from a different location, use the `img-url` attribute:
+
+```html
+<microsim-viewer img-url="https://example.com/custom/path/images"></microsim-viewer>
+<!-- or -->
+<div data-component="microsim-viewer" data-img-url="https://example.com/custom/path/images"></div>
+
+<script type="module" src="https://cdn.jsdelivr.net/gh/tlambert03/microsim-web-component@vX.Y.Z/microsim-viewer.js"></script>
 ```
 
 ### Troubleshooting
@@ -71,7 +71,7 @@ the desired version)
 ## Project Structure
 
 - `index.html` - Entry point for testing the component
-- `src/image-viewer.js` - Lit web component with slider and image display
+- `src/microsim-viewer.js` - Lit web component with slider and image display
 - `src/public/images/` - Sample images (image0.png, image1.png, image2.png)
 - `vite.config.js` - Dev server configuration
 - `dist/` - Production build output (created by `npm run build`)

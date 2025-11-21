@@ -29,10 +29,48 @@ jobs:
       - name: Build
         run: npm run build
       
+      - name: Commit dist to repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f dist/
+          git commit -m "chore: build ${{ github.event.inputs.version }}"
+          git tag -f ${{ github.event.inputs.version }}
+          git push origin ${{ github.event.inputs.version }} --force
+      
+      - name: Generate SRI hash
+        id: sri
+        run: |
+          SRI_HASH=$(cat dist/microsim-viewer.js | openssl dgst -sha384 -binary | openssl base64 -A)
+          echo "hash=sha384-${SRI_HASH}" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          cat << 'EOF' > release-notes.md
+          ## Usage
+
+          Use this web component on your site with:
+
+          ```html
+          <microsim-viewer></microsim-viewer>
+          <!-- alternatively... for pages that purify HTML and remove custom elements: -->
+          <div data-component="microsim-viewer"></div>
+
+          <script type="module"
+                  src="https://cdn.jsdelivr.net/gh/${{ github.repository }}@${{ github.event.inputs.version }}/microsim-viewer.js"
+                  integrity="${{ steps.sri.outputs.hash }}"
+                  crossorigin="anonymous"></script>
+          ```
+
+          The `integrity` attribute ensures the file hasn't been tampered with. You can omit it if you trust the CDN.
+          EOF
+      
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version }}
           name: Release ${{ github.event.inputs.version }}
+          body_path: release-notes.md
           files: dist/*
           generate_release_notes: true

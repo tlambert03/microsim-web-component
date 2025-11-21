@@ -11,9 +11,9 @@ export default {
 	},
 	build: {
 		lib: {
-			entry: resolve(__dirname, "src/image-viewer.js"),
+			entry: resolve(__dirname, "src/microsim-viewer.js"),
 			name: "ImageViewer",
-			fileName: "image-viewer",
+			fileName: "microsim-viewer",
 			formats: ["es"],
 		},
 		rollupOptions: {
