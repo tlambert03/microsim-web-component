@@ -6,15 +6,16 @@ import "@awesome.me/webawesome/dist/components/slider/slider.js";
 const scriptUrl = new URL(import.meta.url);
 // In dev, Vite serves public dir at root, so images are at /images/
 // In prod, images are relative to the script location at ./images
-const isDev = scriptUrl.pathname.includes('/src/');
+const isDev = scriptUrl.pathname.includes("/src/");
 const defaultImgUrl = isDev
-	? new URL('/images', scriptUrl.origin).href
-	: new URL('./images', scriptUrl).href;
+	? new URL("/images", scriptUrl.origin).href
+	: new URL("./images", scriptUrl).href;
 
 class MicrosimViewer extends LitElement {
 	static properties = {
 		imageIndex: { type: Number },
 		imgUrl: { type: String },
+		na: { type: Number },
 	};
 
 	static styles = css`
@@ -31,7 +32,7 @@ class MicrosimViewer extends LitElement {
       max-width: 1200px;
       margin: 0 auto;
     }
-    
+
     .controls {
       display: flex;
       flex-direction: column;
@@ -56,17 +57,18 @@ class MicrosimViewer extends LitElement {
 
 	constructor() {
 		super();
-		this.imageIndex = 0;
-		this.imageCount = 3;
+		this.na = 0.2;
 		this.imgUrl = defaultImgUrl;
 	}
 
-	getImageUrl(index) {
-		return `${this.imgUrl}/image${index}.png`;
+	getImageUrl() {
+    const url =`${this.imgUrl}/chFITC_na${this.na.toFixed(1)}.webp`;
+    console.log("Loading image:", url);
+		return url;
 	}
 
 	handleSliderChange(e) {
-		this.imageIndex = parseInt(e.target.value, 10);
+		this.na = parseFloat(e.target.value);
 	}
 
 	render() {
@@ -75,27 +77,20 @@ class MicrosimViewer extends LitElement {
         <div class="controls">
           <wa-slider
             label="Select Image"
-            min="0"
-            max="${this.imageCount - 1}"
-            value="${this.imageIndex}"
-            step="1"
+            min="0.2"
+            max="1.4"
+            value="${this.na}"
+            step="0.2"
             with-markers
             with-tooltip
             @input="${this.handleSliderChange}"
           >
-            ${Array.from(
-							{ length: this.imageCount },
-							(_, i) => html`
-              <span slot="reference">${i}</span>
-            `,
-						)}
           </wa-slider>
         </div>
         
         <div class="image-container">
           <img 
-            src="${this.getImageUrl(this.imageIndex)}" 
-            alt="Image ${this.imageIndex}"
+            src="${this.getImageUrl()}" 
             loading="lazy"
           >
         </div>
@@ -104,7 +99,27 @@ class MicrosimViewer extends LitElement {
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 customElements.define("microsim-viewer", MicrosimViewer);
+
 
 // For cases like moodle where custom elements are sanitized or not allowed,
 // we also look for divs with data-component="microsim-viewer"
@@ -115,7 +130,7 @@ function initViewers() {
 		.forEach((el) => {
 			const viewer = document.createElement("microsim-viewer");
 
-      // grab all data- attributes and pass them to the viewer
+			// grab all data- attributes and pass them to the viewer
 			Object.keys(el.dataset).forEach((key) => {
 				viewer[key] = el.dataset[key];
 			});
@@ -123,6 +138,7 @@ function initViewers() {
 			el.replaceWith(viewer);
 		});
 }
+
 if (document.readyState === "loading") {
 	document.addEventListener("DOMContentLoaded", initViewers);
 } else {
