@@ -10,7 +10,6 @@ class ImageViewer extends LitElement {
 	static styles = css`
     :host {
       display: block;
-      height: 100vh;
       padding: 20px;
     }
     
