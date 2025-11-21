@@ -15,15 +15,16 @@
 </head>
 
 <body>
-  <!-- This is the "standard" web component syntax
-       but it's not supported (easily) by moodle...
-       so we use `data-component` instead -->
-  <!-- <microsim-viewer img-url="./images"></microsim-viewer> -->
-  <div data-component="microsim-viewer"></div>
+  <!-- 
+  using data-component here instead of <microsim-viewer></microsim-viewer>
+  to support moodle's content security policy which disallows custom elements
+  -->
+<div data-component="microsim-viewer"></div>
 
-  <script type="module" src="/src/microsim-viewer.js"></script>
-
-  <!-- <script type="module" src="https://cdn.jsdelivr.net/gh/tlambert03/microsim-web-component@v0.0.1/dist/microsim-viewer.js"></script> -->
+<script type="module"
+        src="https://cdn.jsdelivr.net/gh/tlambert03/microsim-web-component@v0.0.3/dist/microsim-viewer.js"
+        integrity="sha384-30YL3Lg1Rncksjg7yrBnt9yCIfF9QVImZl5zaXgiPHHicEjOdcwZT1RI50EFyH/h"
+        crossorigin="anonymous"></script>
         
 </body>
 
