@@ -2,9 +2,13 @@ import { css, html, LitElement } from "lit";
 import "@awesome.me/webawesome/dist/styles/themes/default.css";
 import "@awesome.me/webawesome/dist/components/slider/slider.js";
 
+
+
+
 class ImageViewer extends LitElement {
 	static properties = {
 		imageIndex: { type: Number },
+		imgUrl: { type: String },
 	};
 
 	static styles = css`
@@ -47,9 +51,13 @@ class ImageViewer extends LitElement {
 	constructor() {
 		super();
 		this.imageIndex = 0;
+		this.imageCount = 3;
+		this.imgUrl = "./images";
 	}
 
-	images = ["/images/image0.png", "/images/image1.png", "/images/image2.png"];
+	getImageUrl(index) {
+		return `${this.imgUrl}/image${index}.png`;
+	}
 
 	handleSliderChange(e) {
 		this.imageIndex = parseInt(e.target.value, 10);
@@ -62,21 +70,28 @@ class ImageViewer extends LitElement {
           <wa-slider
             label="Select Image"
             min="0"
-            max="2"
+            max="${this.imageCount - 1}"
             value="${this.imageIndex}"
             step="1"
             with-markers
             with-tooltip
             @input="${this.handleSliderChange}"
           >
-            <span slot="reference">0</span>
-            <span slot="reference">1</span>
-            <span slot="reference">2</span>
+            ${Array.from(
+							{ length: this.imageCount },
+							(_, i) => html`
+              <span slot="reference">${i}</span>
+            `,
+						)}
           </wa-slider>
         </div>
         
         <div class="image-container">
-          <img src="${this.images[this.imageIndex]}" alt="Image ${this.imageIndex}">
+          <img 
+            src="${this.getImageUrl(this.imageIndex)}" 
+            alt="Image ${this.imageIndex}"
+            loading="lazy"
+          >
         </div>
       </div>
     `;
