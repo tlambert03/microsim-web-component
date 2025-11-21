@@ -44,19 +44,7 @@ tag (replace `vX.Y.Z` with the desired version):
 <!-- alternatively... for pages that purify HTML and remove custom elements: -->
 <div data-component="microsim-viewer"></div>
 
-<script type="module" src="https://cdn.jsdelivr.net/gh/tlambert03/microsim-web-component@vX.Y.Z/microsim-viewer.js"></script>
-```
-
-### Custom Image Location (Optional)
-
-If you need to load images from a different location, use the `img-url` attribute:
-
-```html
-<microsim-viewer img-url="https://example.com/custom/path/images"></microsim-viewer>
-<!-- or -->
-<div data-component="microsim-viewer" data-img-url="https://example.com/custom/path/images"></div>
-
-<script type="module" src="https://cdn.jsdelivr.net/gh/tlambert03/microsim-web-component@vX.Y.Z/microsim-viewer.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/tlambert03/microsim-web-component@vX.Y.Z/dist/microsim-viewer.js"></script>
 ```
 
 ### Troubleshooting
