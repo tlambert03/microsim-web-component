@@ -1,7 +1,6 @@
 export default {
-  publicDir: 'src/public',
-  server: {
-    port: 3000,
-    open: true
-  }
-}
+	publicDir: "src/public",
+	server: {
+		open: true,
+	},
+};
