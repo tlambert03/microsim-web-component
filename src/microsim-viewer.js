@@ -4,7 +4,12 @@ import "@awesome.me/webawesome/dist/components/slider/slider.js";
 
 // Automatically detect the base URL for images based on where this script was loaded from
 const scriptUrl = new URL(import.meta.url);
-const defaultImgUrl = new URL('./images', scriptUrl).href;
+// In dev, Vite serves public dir at root, so images are at /images/
+// In prod, images are relative to the script location at ./images
+const isDev = scriptUrl.pathname.includes('/src/');
+const defaultImgUrl = isDev
+	? new URL('/images', scriptUrl.origin).href
+	: new URL('./images', scriptUrl).href;
 
 class MicrosimViewer extends LitElement {
 	static properties = {
