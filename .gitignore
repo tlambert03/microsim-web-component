@@ -34,3 +34,4 @@ cover/
 node_modules/
 .playwright-mcp/
 dist/
+.DS_Store

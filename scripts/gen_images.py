@@ -1,11 +1,21 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from itertools import product 
 
 import imageio.v3 as iio
 import microsim.schema as ms
 from microsim.schema.optical_config import lib
 
 DEST = Path(__file__).parent.parent / "src" / "public" / "images"
+
+# OBJECTIVE NAS
+objective_nas = (0.45, 0.75, 1.4, 1.45)
+
+# MODALITIES
+modalities = {
+    "widefield": ms.Widefield(),
+    "confocal": ms.Confocal(pinhole_au=1.0)
+}
 
 BASE_SIMULATION = ms.Simulation(
     truth_space=ms.ShapeScaleSpace(shape=(32, 512, 512), scale=(0.064, 0.064, 0.064)),
@@ -34,9 +44,12 @@ BASE_SIMULATION = ms.Simulation(
 )
 
 
-def simulate(na: float, dest_path: Path = DEST) -> None:
+def simulate(params: tuple, dest_path: Path = DEST) -> None:
+    na, (modality_name, modality_obj) = params
+    
     sim = BASE_SIMULATION.model_copy(deep=True)
     sim.objective_lens.numerical_aperture = na
+    sim.modality = modality_obj
     result = sim.run()
 
     # scale 16 bit to 8 bit without clipping
@@ -48,9 +61,15 @@ def simulate(na: float, dest_path: Path = DEST) -> None:
     for c in range(result_8bit.sizes["c"]):
         image = result_8bit.isel(c=c, z=middle_z)
         channel_name = image.coords["c"].item().name
-        iio.imwrite(dest_path / f"ch{channel_name}_na{na}.webp", image)
+        filename = f"{modality_name}_ch{channel_name}_na{na}.webp"
+        iio.imwrite(dest_path / filename, image)
+        print(f"Saved: {filename}")
 
 
 if __name__ == "__main__":
+    
+    # Create all combinations
+    params = list(product(objective_nas, modalities.items()))
+
     with ThreadPoolExecutor() as executor:
-        executor.map(simulate, (0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+        futures = list(executor.map(simulate, params))
