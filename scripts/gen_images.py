@@ -36,6 +36,7 @@ def calculate_pinhole_au(pinhole_um, wavelength_um, na, magnification):
 # MODALITIES & FILTER SETS
 # FPBase microscope ID for the filter sets
 microscope_id = "QaADgrEPMPn3UiqAyZVmA"
+# microscope_id = "4yL4ggAozzcMwTU4Ae7zxF" # example yoko scope with lower OD for lasers
 
 def get_modality_filters(na, mag):
     """Generate modality filters with correct pinhole AU for given objective NA & magnification"""
@@ -58,11 +59,16 @@ def get_modality_filters(na, mag):
         }
     }
 
-# ILLUMINATION (approximate with fluorophore concentration)
-concentrations = [0, 0.5, 1.0, 2.0] # testing...123
+# ILLUMINATION POWER (W/cm2)
+# illumination_intensity = [0, 20, 40, 60, 80, 100] # relative intensities
+# SOLA at 100% out of objective is ~240 mW 
+# Lasers at 100% out of objective ~3.3-6.4 mW
+power_levels = [0, 0.01, 0.033, 0.064, 0.14, 0.24] 
+# power_levels = [100]
 
 # EXPOSURE TIMES (ms)
-exposure_times = [1, 50, 100]  # testing...123
+exposure_times = [1, 20, 50, 100, 200, 300, 500, 800, 1000] 
+# exposure_times = [100]
 
 
 BASE_SIMULATION = ms.Simulation(
@@ -73,15 +79,15 @@ BASE_SIMULATION = ms.Simulation(
             # pick dataset and layer name from https://openorganelle.janelia.org/datasets
             ms.FluorophoreDistribution(
                 distribution=ms.CosemLabel(dataset="jrc_hela-3", label="nucleus_pred"), 
-                fluorophore="DAPI", concentration=1.0),
+                fluorophore="DAPI"),
 
             ms.FluorophoreDistribution(
                 distribution=ms.CosemLabel(dataset="jrc_hela-3", label="er-mem_pred"),
-                fluorophore="EGFP", concentration=1.0,
+                fluorophore="EGFP"
             ),
             ms.FluorophoreDistribution(
                 distribution=ms.CosemLabel(dataset="jrc_hela-3", label="mito-mem_pred"),
-                fluorophore="mCherry", concentration=1.0,
+                fluorophore="mCherry"
             ),
         ]
     ),
@@ -107,6 +113,9 @@ def get_optical_config(filter_name):
         'confocal_405': "Confocal 405",
         'confocal_488': "Confocal 488",
         'confocal_561': "Confocal 561"
+        # 'confocal_405': "405",
+        # 'confocal_488': "491",
+        # 'confocal_561': "561"
     }
     
     return ms.OpticalConfig.from_fpbase(
@@ -115,17 +124,18 @@ def get_optical_config(filter_name):
     )
 
 def simulate(params: tuple, dest_path: Path = DEST) -> None:
-    na, mag, modality_type, filter_name, modality_obj, exposure_ms, concentration = params
+    na, mag, modality_type, filter_name, modality_obj, exposure_ms, power = params
     
     sim = BASE_SIMULATION.model_copy(deep=True)
     sim.objective_lens.numerical_aperture = na
     sim.modality = modality_obj
-    sim.channels = [get_optical_config(filter_name)]
     sim.exposure_ms = exposure_ms
 
-    # set concentration of fluorophores
-    for label in sim.sample.labels:
-        label.concentration = concentration
+    # get filter set config & set light source power
+    optical_config = get_optical_config(filter_name).model_copy(deep=True) # make a copy before modifying power so cached config not overwritten
+    optical_config.power = power # power in units of W/cm2
+    sim.channels = [optical_config]
+    
     
     result = sim.run()
 
@@ -137,8 +147,8 @@ def simulate(params: tuple, dest_path: Path = DEST) -> None:
     middle_z = result.sizes["z"] // 2
     for c in range(result_8bit.sizes["c"]):
         image = result_8bit.isel(c=c, z=middle_z)
-        channel_name = image.coords["c"].item().name
-        filename = f"{modality_type}_{filter_name}_na{na}_{mag}x_exp{exposure_ms}_conc{concentration}.webp"
+        #channel_name = image.coords["c"].item().name
+        filename = f"{modality_type}_{filter_name}_na{na}_{mag}x_exp{exposure_ms}_power{power}W.webp"
         iio.imwrite(dest_path / filename, image)
         print(f"Saved: {filename}")
 
@@ -147,18 +157,19 @@ def simulate(params: tuple, dest_path: Path = DEST) -> None:
 if __name__ == "__main__":
     # Create all valid combinations
     params = [
-        (na, mag, modality_type, filter_name, modality_obj, exposure_ms, concentration)
+        (na, mag, modality_type, filter_name, modality_obj, exposure_ms, power)
         for na, mag in objectives
         for modality_type, filters in get_modality_filters(na, mag).items()
         for filter_name, modality_obj in filters.items()
         for exposure_ms in exposure_times
-        for concentration in concentrations
+        for power in power_levels
     ]
     
     print(f"Generating {len(params)} images...")
     print(f"Using {PINHOLE_SIZE_UM}µm physical pinhole size")
     print(f"Exposure times: {exposure_times} ms")
-    print(f"Concentrations: {concentrations}")
+    print(f"Power levels: {power_levels} W/cm²")
+
     
     # Run first one to populate cache
     print("Warming up cache...")
